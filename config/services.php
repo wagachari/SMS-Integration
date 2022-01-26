@@ -31,7 +31,8 @@ return [
     ],
     'mojagate' => [
         'email' => env('mojagate_username'),
-        'password' => env('mojagate_password')
+        'password' => env('mojagate_password'),
+        'webhook' => env('mojagare_webhook')
     ],
 
 ];
