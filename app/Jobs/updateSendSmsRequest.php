@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\SMSIntegration;
+use App\Models\Sms;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,11 +55,14 @@ class updateSendSmsRequest implements ShouldQueue
 
             $request = json_decode(json_encode($this->request), false);
 
-            $id = SMSIntegration::where("message_id", $this->request_id)->value('id');
+            $updated_at = $this->request['data']['recipients'][0]["credit_bucket"]["updated_at"];
 
-            $transaction = SMSIntegration::find($id);
+            $id = Sms::where("message_id", $this->request_id)->value('id');
+
+            $transaction = Sms::find($id);
             $transaction->response_desc = $request->status ?? null;
             $transaction->response_message = $request->message ?? null;
+            $transaction->sent_at = $updated_at ?? null;
 
             $transaction->update();
 

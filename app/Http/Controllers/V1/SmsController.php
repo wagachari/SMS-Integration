@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use JWTAuth;
 use Log;
 
-class SmsIntegration extends Controller
+class SmsController extends Controller
 {
     protected $user;
 
@@ -20,14 +20,13 @@ class SmsIntegration extends Controller
     {
 
         $this->user = JWTAuth::parseToken()->authenticate();
-
-        $this->request_id = "smsRequest" . preg_replace('/\D/', '', date("Y-m-d H:i:s", explode(" ", microtime())[1]) . substr((string) explode(" ", microtime())[0], 1, 4)) . Str::random(10);
+        $this->request_id = Str::uuid()->toString();
     }
 
     public function index(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'source_address' => 'required|string|max:255',
+            'source_address' => 'required|string|max:11',
             'dst_address' => 'required|digits_between:9,12',
             'message' => 'required|string|max:1500',
 
@@ -42,7 +41,7 @@ class SmsIntegration extends Controller
 
     public function store($request)
     {
-
+        try{
         $this->dispatch(new saveSendSMSRequest($request->toArray(), $this->request_id));
 
         $token = Cache::remember('token', 3500, function () {
@@ -87,6 +86,18 @@ class SmsIntegration extends Controller
 
 // TO DO: Fail the transaction or retry sending
         }
+    }
+    catch(Exception $e){
+        Log::info("An error occurred: ", [$e]);
+        $response = array
+                (
+                'status_code' => 777,
+                'description' => "Failed to send message. Please try again later",
+                'dst_address' => $request->dst_address,
+                'message' => $request->message,
+                'message_id' => $this->request_id,
+            );
+    }
 
     }
     //TO DO move this to traits

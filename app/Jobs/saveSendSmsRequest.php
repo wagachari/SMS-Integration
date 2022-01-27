@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\SMSIntegration;
+use App\Models\Sms;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -55,7 +55,7 @@ class saveSendSmsRequest implements ShouldQueue
 
             $request = json_decode(json_encode($this->request), false);
 
-            $transaction = new SMSIntegration;
+            $transaction = new Sms;
             $transaction->message_id = $this->message_id;
             $transaction->message = $request->message ?? null;
             $transaction->dst_address = $request->dst_address ?? null;
