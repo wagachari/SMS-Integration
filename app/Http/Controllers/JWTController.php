@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-
-use Validator;
 use App\Models\User;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Validator;
 
 class JWTController extends Controller
 {
@@ -34,19 +33,19 @@ class JWTController extends Controller
             'password' => 'required|string|confirmed|min:6',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
         $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password)
-            ]);
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
         return response()->json([
             'message' => 'User successfully registered',
-            'user' => $user
+            'user' => $user,
         ], 201);
     }
 
@@ -80,6 +79,13 @@ class JWTController extends Controller
      */
     public function logout()
     {
+        $validator = Validator::make($request->only('token'), [
+            'token' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 200);
+        }
         auth()->logout();
 
         return response()->json(['message' => 'User successfully logged out.']);
@@ -117,7 +123,7 @@ class JWTController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
     }
 }

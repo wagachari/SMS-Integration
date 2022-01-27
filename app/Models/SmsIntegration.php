@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class SmsIntegration extends Model
 {
     protected $fillable = [
-        'name', 'dst_address', 'message','message_id'
+        'source_address',
+        'dst_address',
+        'message',
+        'message_id',
+        'amount',
+        'response_message',
+        'response_desc',
     ];
 }
